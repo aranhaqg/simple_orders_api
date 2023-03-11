@@ -1,4 +1,4 @@
-use Mix.Config
+import Mix.Config
 
 # Configure your database
 config :simple_orders_api, SimpleOrdersApi.Repo,

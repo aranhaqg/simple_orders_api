@@ -5,7 +5,7 @@
 # is restricted to this project.
 
 # General application configuration
-use Mix.Config
+import Mix.Config
 
 config :simple_orders_api,
   ecto_repos: [SimpleOrdersApi.Repo],
