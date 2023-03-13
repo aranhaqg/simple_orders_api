@@ -156,6 +156,22 @@ defmodule SimpleOrdersApi.Catalog do
     |> Repo.insert()
   end
 
+  def create_order(%Order{total: total,  user_id: user_id}, items: items) do
+    order_params = %{
+      total: total,
+      user_id: user_id
+    }
+
+    Repo.transaction(fn ->
+      {:ok, order} = create_order(order_params)
+
+      Enum.each items, fn(item) ->
+        product = Repo.get_by(Product, sku: item)
+        create_order_product(%{order_id: order.id, product_id: product.id})
+      end
+    end)
+  end
+
   @doc """
   Updates a order.
 

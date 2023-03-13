@@ -9,7 +9,8 @@ defmodule SimpleOrdersApiWeb.Router do
     pipe_through :api
     get "/users/:name", UserController, :show
     get "/products/", ProductController, :index
-    resources "/orders", OrderController, only: [:create, :show, :update, :delete]
+    post "/orders/", UserController, :create
+    resources "/orders", OrderController, only: [:show, :update, :delete]
     resources "/users", UserController, except: [:new, :edit]
   end
 
