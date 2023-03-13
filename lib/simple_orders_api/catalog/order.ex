@@ -4,17 +4,22 @@ defmodule SimpleOrdersApi.Catalog.Order do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  alias SimpleOrdersApi.Admin.User
+
   schema "orders" do
     field :total, :decimal
-    field :user_id, :binary_id
 
+    belongs_to(:user, User)
     timestamps()
   end
 
-  @doc false
+  @required [:total, :user_id]
   def changeset(order, attrs) do
     order
-    |> cast(attrs, [:total])
-    |> validate_required([:total])
+    |> cast(attrs, @required)
+    |> validate_required(@required)
+    |> assoc_constraint(:user)
   end
+
 end
