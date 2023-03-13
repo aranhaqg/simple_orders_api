@@ -156,20 +156,6 @@ defmodule SimpleOrdersApi.Catalog do
     |> Repo.insert()
   end
 
-  # defp create_order(%Order{total: total}, %{"name" => _name, "id" => user_id}) do
-  #   params = %{
-  #     total: total,
-  #     user_id: user_id
-  #   }
-
-  #   params
-  #   |> User.build()
-  #   |> handle_build()
-  # end
-
-  defp handle_build({:ok, order}), do: Repo.insert(order)
-  defp handle_build({:error, _changeset} = error), do: error
-
   @doc """
   Updates a order.
 

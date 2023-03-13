@@ -7,10 +7,10 @@ defmodule SimpleOrdersApiWeb.Router do
 
   scope "/api", SimpleOrdersApiWeb do
     pipe_through :api
-
-    # get "/users/:name", UserController, :show
+    get "/users/:name", UserController, :show
     get "/products/", ProductController, :index
     resources "/orders", OrderController, only: [:create, :show, :update, :delete]
+    resources "/users", UserController, except: [:new, :edit]
   end
 
   # Enables LiveDashboard only for development
