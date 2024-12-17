@@ -11,8 +11,6 @@ defmodule SimpleOrdersApi.Admin.User do
     field :balance, :decimal
     field :name, :string
 
-    has_many(:orders, Order)
-
     timestamps()
   end
 
@@ -23,6 +21,5 @@ defmodule SimpleOrdersApi.Admin.User do
     |> cast(attrs, @required)
     |> validate_required(@required)
     |> unique_constraint(:name)
-    |> assoc_constraint(:orders)
   end
 end

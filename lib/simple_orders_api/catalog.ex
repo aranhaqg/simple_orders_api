@@ -7,7 +7,6 @@ defmodule SimpleOrdersApi.Catalog do
   alias SimpleOrdersApi.Repo
 
   alias SimpleOrdersApi.Catalog.Product
-  alias SimpleOrdersApi.Admin.User
 
   @doc """
   Returns the list of products.
@@ -115,9 +114,10 @@ defmodule SimpleOrdersApi.Catalog do
 
   """
   def list_orders do
-    query = from o in Order,
-      join: u in assoc(o, :user),
-      select: %{id: o.id, total: o.total, user: u}
+    query =
+      from o in Order,
+        join: u in assoc(o, :user),
+        select: %{id: o.id, total: o.total, user: u}
 
     Repo.all(query)
   end
@@ -156,7 +156,7 @@ defmodule SimpleOrdersApi.Catalog do
     |> Repo.insert()
   end
 
-  def create_order(%Order{total: total,  user_id: user_id}, items: items) do
+  def create_order(%Order{total: total, user_id: user_id}, items: items) do
     order_params = %{
       total: total,
       user_id: user_id
@@ -165,10 +165,10 @@ defmodule SimpleOrdersApi.Catalog do
     Repo.transaction(fn ->
       {:ok, order} = create_order(order_params)
 
-      Enum.each items, fn(item) ->
+      Enum.each(items, fn item ->
         product = Repo.get_by(Product, sku: item)
         create_order_product(%{order_id: order.id, product_id: product.id})
-      end
+      end)
     end)
   end
 
