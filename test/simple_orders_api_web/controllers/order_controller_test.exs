@@ -1,19 +1,22 @@
 defmodule SimpleOrdersApiWeb.OrderControllerTest do
   use SimpleOrdersApiWeb.ConnCase
 
+  alias SimpleOrdersApi.Admin
   alias SimpleOrdersApi.Catalog
   alias SimpleOrdersApi.Catalog.Order
 
-  @create_attrs %{
-    total: "120.5"
-  }
   @update_attrs %{
     total: "456.7"
   }
   @invalid_attrs %{total: nil}
 
+  def create_attrs() do
+    {:ok, user} = Admin.create_user(%{name: "some name", balance: 1000.00})
+    %{total: 120.5, user_id: user.id}
+  end
+
   def fixture(:order) do
-    {:ok, order} = Catalog.create_order(@create_attrs)
+    {:ok, order} = Catalog.create_order(create_attrs())
     order
   end
 
@@ -30,20 +33,21 @@ defmodule SimpleOrdersApiWeb.OrderControllerTest do
 
   describe "create order" do
     test "renders order when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.order_path(conn, :create), order: @create_attrs)
+      conn = post(conn, Routes.order_path(conn, :create), order: create_attrs())
       assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert id != nil
 
       conn = get(conn, Routes.order_path(conn, :show, id))
 
-      assert %{
+      assert json_response(conn, 200)["data"] == %{
                "id" => id,
                "total" => "120.5"
-             } = json_response(conn, 200)["data"]
+             }
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.order_path(conn, :create), order: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert json_response(conn, :unprocessable_entity)["errors"] != %{}
     end
   end
 
@@ -57,14 +61,14 @@ defmodule SimpleOrdersApiWeb.OrderControllerTest do
       conn = get(conn, Routes.order_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => _id,
                "total" => "456.7"
              } = json_response(conn, 200)["data"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, order: order} do
       conn = put(conn, Routes.order_path(conn, :update, order), order: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert json_response(conn, :unprocessable_entity)["errors"] != %{}
     end
   end
 
