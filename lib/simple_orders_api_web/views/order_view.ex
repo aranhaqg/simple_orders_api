@@ -11,7 +11,6 @@ defmodule SimpleOrdersApiWeb.OrderView do
   end
 
   def render("order.json", %{order: order}) do
-    %{id: order.id,
-      total: order.total}
+    %{id: order.id, total: order.total}
   end
 end

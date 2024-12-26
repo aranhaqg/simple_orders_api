@@ -161,12 +161,17 @@ defmodule SimpleOrdersApi.CatalogTest do
 
     test "update_order_product/2 with valid data updates the order_product" do
       order_product = order_product_fixture()
-      assert {:ok, %OrderProduct{} = order_product} = Catalog.update_order_product(order_product, @update_attrs)
+
+      assert {:ok, %OrderProduct{} = order_product} =
+               Catalog.update_order_product(order_product, @update_attrs)
     end
 
     test "update_order_product/2 with invalid data returns error changeset" do
       order_product = order_product_fixture()
-      assert {:error, %Ecto.Changeset{}} = Catalog.update_order_product(order_product, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Catalog.update_order_product(order_product, @invalid_attrs)
+
       assert order_product == Catalog.get_order_product!(order_product.id)
     end
 

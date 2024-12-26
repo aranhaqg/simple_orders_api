@@ -21,5 +21,4 @@ defmodule SimpleOrdersApi.Catalog.Order do
     |> validate_required(@required)
     |> assoc_constraint(:user)
   end
-
 end

@@ -9,8 +9,8 @@ defmodule SimpleOrdersApi.Catalog.OrderProduct do
   alias SimpleOrdersApi.Catalog.Product
 
   schema "orders_products" do
-    #field :order_id, :binary_id
-    #field :product_id, :binary_id
+    # field :order_id, :binary_id
+    # field :product_id, :binary_id
 
     belongs_to(:order, Order)
     belongs_to(:product, Product)

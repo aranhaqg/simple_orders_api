@@ -11,9 +11,6 @@ defmodule SimpleOrdersApiWeb.ProductView do
   end
 
   def render("product.json", %{product: product}) do
-    %{id: product.id,
-      sku: product.sku,
-      name: product.name,
-      price: product.price}
+    %{id: product.id, sku: product.sku, name: product.name, price: product.price}
   end
 end
