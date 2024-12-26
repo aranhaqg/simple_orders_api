@@ -9,9 +9,6 @@ defmodule SimpleOrdersApi.Catalog.OrderProduct do
   alias SimpleOrdersApi.Catalog.Product
 
   schema "orders_products" do
-    # field :order_id, :binary_id
-    # field :product_id, :binary_id
-
     belongs_to(:order, Order)
     belongs_to(:product, Product)
 
@@ -19,11 +16,10 @@ defmodule SimpleOrdersApi.Catalog.OrderProduct do
   end
 
   @doc false
-  @required [:order_id, :product_id]
   def changeset(order_product, attrs) do
     order_product
-    |> cast(attrs, @required)
-    |> validate_required([])
+    |> cast(attrs, [:order_id, :product_id])
+    |> validate_required([:order_id, :product_id])
     |> assoc_constraint(:order)
     |> assoc_constraint(:product)
   end

@@ -5,8 +5,6 @@ defmodule SimpleOrdersApi.Admin.User do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
-  alias SimpleOrdersApi.Catalog.Order
-
   schema "users" do
     field :balance, :decimal
     field :name, :string

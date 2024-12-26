@@ -114,12 +114,9 @@ defmodule SimpleOrdersApi.Catalog do
 
   """
   def list_orders do
-    query =
-      from o in Order,
-        join: u in assoc(o, :user),
-        select: %{id: o.id, total: o.total, user: u}
-
-    Repo.all(query)
+    Order
+    |> Repo.all()
+    |> Repo.preload(:user)
   end
 
   @doc """
@@ -136,8 +133,9 @@ defmodule SimpleOrdersApi.Catalog do
       ** (Ecto.NoResultsError)
 
   """
-  def get_order!(id), do: Repo.get!(Order, id)
+  def get_order!(id), do: Repo.get!(Order, id) |> Repo.preload(:user)
 
+  @spec create_order() :: any()
   @doc """
   Creates a order.
 
@@ -154,6 +152,14 @@ defmodule SimpleOrdersApi.Catalog do
     %Order{}
     |> Order.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, order} ->
+        # Preload the user association
+        {:ok, Repo.preload(order, :user)}
+
+      error ->
+        error
+    end
   end
 
   def create_order(%Order{total: total, user_id: user_id}, items: items) do

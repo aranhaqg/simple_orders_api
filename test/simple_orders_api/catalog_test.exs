@@ -68,16 +68,20 @@ defmodule SimpleOrdersApi.CatalogTest do
 
   describe "orders" do
     alias SimpleOrdersApi.Catalog.Order
+    alias SimpleOrdersApi.Admin
 
-    @valid_attrs %{total: "120.5"}
-    @update_attrs %{total: "456.7"}
+    @update_attrs %{total: 456.7}
     @invalid_attrs %{total: nil}
 
-    def order_fixture(attrs \\ %{}) do
-      {:ok, order} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Catalog.create_order()
+    def valid_attrs() do
+      user = %{name: "some name", balance: 1000.00}
+      {:ok, user} = Admin.create_user(user)
+
+      %{total: 120.5, user_id: user.id}
+    end
+
+    def order_fixture() do
+      {:ok, order} = Catalog.create_order(valid_attrs())
 
       order
     end
@@ -93,7 +97,7 @@ defmodule SimpleOrdersApi.CatalogTest do
     end
 
     test "create_order/1 with valid data creates a order" do
-      assert {:ok, %Order{} = order} = Catalog.create_order(@valid_attrs)
+      assert {:ok, %Order{} = order} = Catalog.create_order(valid_attrs())
       assert order.total == Decimal.new("120.5")
     end
 
@@ -128,15 +132,24 @@ defmodule SimpleOrdersApi.CatalogTest do
   describe "orders_products" do
     alias SimpleOrdersApi.Catalog.OrderProduct
 
-    @valid_attrs %{}
-    @update_attrs %{}
-    @invalid_attrs %{}
+    @product_1_attrs %{name: "Product 1", price: "10.5", sku: "some-sku-1"}
+    @product_2_attrs %{name: "Product 2", price: "12.5", sku: "some-sku-2"}
 
-    def order_product_fixture(attrs \\ %{}) do
-      {:ok, order_product} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Catalog.create_order_product()
+    @invalid_attrs %{order_id: nil, product_id: nil}
+
+    def orders_products_valid_attrs do
+      product = product_fixture(@product_1_attrs)
+      order = order_fixture()
+      %{order_id: order.id, product_id: product.id}
+    end
+
+    def update_attrs do
+      product = product_fixture(@product_2_attrs)
+      %{product_id: product.id}
+    end
+
+    def order_product_fixture() do
+      {:ok, order_product} = Catalog.create_order_product(orders_products_valid_attrs())
 
       order_product
     end
@@ -152,18 +165,12 @@ defmodule SimpleOrdersApi.CatalogTest do
     end
 
     test "create_order_product/1 with valid data creates a order_product" do
-      assert {:ok, %OrderProduct{} = order_product} = Catalog.create_order_product(@valid_attrs)
+      assert {:ok, %OrderProduct{} = _order_product} =
+               Catalog.create_order_product(orders_products_valid_attrs())
     end
 
     test "create_order_product/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Catalog.create_order_product(@invalid_attrs)
-    end
-
-    test "update_order_product/2 with valid data updates the order_product" do
-      order_product = order_product_fixture()
-
-      assert {:ok, %OrderProduct{} = order_product} =
-               Catalog.update_order_product(order_product, @update_attrs)
     end
 
     test "update_order_product/2 with invalid data returns error changeset" do
@@ -173,6 +180,16 @@ defmodule SimpleOrdersApi.CatalogTest do
                Catalog.update_order_product(order_product, @invalid_attrs)
 
       assert order_product == Catalog.get_order_product!(order_product.id)
+    end
+
+    test "update_order_product/2 with valid data updates the order_product" do
+      order_product = order_product_fixture()
+      update_attrs = update_attrs()
+
+      assert {:ok, %OrderProduct{} = order_product} =
+               Catalog.update_order_product(order_product, update_attrs)
+
+      assert order_product.product_id == update_attrs.product_id
     end
 
     test "delete_order_product/1 deletes the order_product" do
