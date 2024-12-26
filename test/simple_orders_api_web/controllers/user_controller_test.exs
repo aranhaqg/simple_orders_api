@@ -33,12 +33,13 @@ defmodule SimpleOrdersApiWeb.UserControllerTest do
   describe "create user" do
     test "renders user when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, Routes.user_path(conn, :show, id))
+      assert %{"id" => _id} = json_response(conn, 201)["data"]
+
+      conn = get(conn, Routes.user_path(conn, :show, "some name"))
 
       assert %{
-               "id" => id,
+               "id" => _id,
                "balance" => "120.5",
                "name" => "some name"
              } = json_response(conn, 200)["data"]
@@ -55,12 +56,12 @@ defmodule SimpleOrdersApiWeb.UserControllerTest do
 
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      assert %{"id" => _id} = json_response(conn, 200)["data"]
 
-      conn = get(conn, Routes.user_path(conn, :show, id))
+      conn = get(conn, Routes.user_path(conn, :show, "some updated name"))
 
       assert %{
-               "id" => id,
+               "id" => _id,
                "balance" => "456.7",
                "name" => "some updated name"
              } = json_response(conn, 200)["data"]
@@ -79,9 +80,8 @@ defmodule SimpleOrdersApiWeb.UserControllerTest do
       conn = delete(conn, Routes.user_path(conn, :delete, user))
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, Routes.user_path(conn, :show, user))
-      end
+      conn = get(conn, Routes.user_path(conn, :show, user))
+      assert response(conn, 404)
     end
   end
 

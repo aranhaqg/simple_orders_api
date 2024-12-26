@@ -13,32 +13,57 @@ defmodule SimpleOrdersApiWeb.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    with {:ok, %User{} = user} <- Admin.create_user(user_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.user_path(conn, :show, user))
-      |> render("show.json", user: user)
+    case Admin.create_user(user_params) do
+      {:ok, %User{} = user} ->
+        conn
+        |> put_status(:created)
+        |> put_resp_header("location", Routes.user_path(conn, :show, user))
+        |> render("show.json", user: user)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(SimpleOrdersApiWeb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
   def show(conn, %{"name" => name}) do
     user = Repo.get_by(User, name: name)
-    render(conn, "show.json", user: user)
+
+    if user do
+      render(conn, "show.json", user: user)
+    else
+      conn
+      |> put_status(:not_found)
+      |> render(SimpleOrdersApiWeb.ErrorView, "404.json")
+    end
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
     user = Admin.get_user!(id)
 
-    with {:ok, %User{} = user} <- Admin.update_user(user, user_params) do
-      render(conn, "show.json", user: user)
+    case Admin.update_user(user, user_params) do
+      {:ok, %User{} = user} ->
+        render(conn, "show.json", user: user)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(SimpleOrdersApiWeb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
   def delete(conn, %{"id" => id}) do
     user = Admin.get_user!(id)
 
-    with {:ok, %User{}} <- Admin.delete_user(user) do
-      send_resp(conn, :no_content, "")
+    case Admin.delete_user(user) do
+      {:ok, %User{}} ->
+        send_resp(conn, :no_content, "")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(SimpleOrdersApiWeb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 end

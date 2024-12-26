@@ -12,11 +12,17 @@ defmodule SimpleOrdersApiWeb.ProductController do
   end
 
   def create(conn, %{"product" => product_params}) do
-    with {:ok, %Product{} = product} <- Catalog.create_product(product_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.product_path(conn, :show, product))
-      |> render("show.json", product: product)
+    case Catalog.create_product(product_params) do
+      {:ok, %Product{} = product} ->
+        conn
+        |> put_status(:created)
+        |> put_resp_header("location", Routes.product_path(conn, :show, product))
+        |> render("show.json", product: product)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(SimpleOrdersApiWeb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
@@ -28,8 +34,15 @@ defmodule SimpleOrdersApiWeb.ProductController do
   def update(conn, %{"id" => id, "product" => product_params}) do
     product = Catalog.get_product!(id)
 
-    with {:ok, %Product{} = product} <- Catalog.update_product(product, product_params) do
-      render(conn, "show.json", product: product)
+    case Catalog.update_product(product, product_params) do
+      {:ok, %Product{} = product} ->
+        conn
+        |> render("show.json", product: product)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(SimpleOrdersApiWeb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
