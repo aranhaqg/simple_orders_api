@@ -1,4 +1,5 @@
 # SimpleOrdersApi
+![CI](https://github.com/aranhaqg/simple_orders_api/actions/workflows/elixir.yml/badge.svg)
 
 A simple products order REST API in Elixir with no auth.
 To start your Phoenix server:
